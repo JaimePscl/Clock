@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>World Clocks</title>
+  <style>
+    :root {
+      --background-color: #f4f4f4;
+      --text-color: #333;
+      --card-bg: #fff;
+      --card-border: #ddd;
+    }
+
+    [data-theme="dark"] {
+      --background-color: #121212;
+      --text-color: #fff;
+      --card-bg: #1e1e1e;
+      --card-border: #333;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: var(--background-color);
+      color: var(--text-color);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      height: 100vh;
+    }
+
+    header {
+      width: 100%;
+      display: flex;
+      justify-content: flex-end;
+      padding: 10px 20px;
+      background-color: var(--card-bg);
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .theme-toggle {
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+    }
+
+    .theme-toggle input {
+      margin-left: 10px;
+    }
+
+    .main-clock {
+      margin: 20px 0;
+      text-align: center;
+    }
+
+    .main-clock h1 {
+      font-size: 64px;
+      margin: 10px 0;
+      font-family: Helvetica, Arial, sans-serif;
+    }
+
+    .secondary-clocks {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 20px;
+      max-width: 800px;
+    }
+
+    .clock {
+      background: var(--card-bg);
+      padding: 15px 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      text-align: center;
+      width: 180px;
+    }
+
+    .clock h3 {
+      margin: 10px 0;
+    }
+
+    .clock p {
+      margin: 5px 0;
+    }
+  </style>
+</head>
+<body data-theme="light">
+  <header>
+    <div class="theme-toggle">
+      <span>Dark Mode</span>
+      <input type="checkbox" id="theme-toggle" onclick="toggleTheme()">
+    </div>
+  </header>
+
+  <div class="main-clock">
+    <h2>Main Clock (Santiago, Chile)</h2>
+    <h1 id="main-time">--:--</h1>
+  </div>
+
+  <div class="secondary-clocks">
+    <div class="clock" id="shanghai">
+      <h3>Shanghai</h3>
+      <p id="time-shanghai">--:--</p>
+      <p id="diff-shanghai"></p>
+    </div>
+    <div class="clock" id="sao-paulo">
+      <h3>São Paulo</h3>
+      <p id="time-sao-paulo">--:--</p>
+      <p id="diff-sao-paulo"></p>
+    </div>
+    <div class="clock" id="burton">
+      <h3>Burton upon Trent, UK</h3>
+      <p id="time-burton">--:--</p>
+      <p id="diff-burton"></p>
+    </div>
+    <div class="clock" id="chicago">
+      <h3>Chicago</h3>
+      <p id="time-chicago">--:--</p>
+      <p id="diff-chicago"></p>
+    </div>
+    <div class="clock" id="louisville">
+      <h3>Louisville, KY</h3>
+      <p id="time-louisville">--:--</p>
+      <p id="diff-louisville"></p>
+    </div>
+  </div>
+
+  <script>
+    const mainTimezone = "America/Santiago";
+    const secondaryTimezones = [
+      { id: "shanghai", timeZone: "Asia/Shanghai", name: "Shanghai" },
+      { id: "sao-paulo", timeZone: "America/Sao_Paulo", name: "São Paulo" },
+      { id: "burton", timeZone: "Europe/London", name: "Burton upon Trent, UK" },
+      { id: "chicago", timeZone: "America/Chicago", name: "Chicago" },
+      { id: "louisville", timeZone: "America/Kentucky/Louisville", name: "Louisville, KY" },
+    ];
+
+    function updateTime() {
+      const now = new Date();
+
+      // Main clock
+      const mainTime = now.toLocaleTimeString("en-US", {
+        timeZone: mainTimezone,
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+      document.getElementById("main-time").textContent = mainTime;
+
+      // Secondary clocks
+      secondaryTimezones.forEach(({ id, timeZone, name }) => {
+        const localTime = now.toLocaleTimeString("en-US", {
+          timeZone: timeZone,
+          hour: "2-digit",
+          minute: "2-digit",
+        });
+
+        const diff = new Date(now.toLocaleString("en-US", { timeZone }))
+          - new Date(now.toLocaleString("en-US", { timeZone: mainTimezone }));
+        const diffHours = diff / (1000 * 60 * 60);
+
+        document.getElementById(`time-${id}`).textContent = localTime;
+        document.getElementById(`diff-${id}`).textContent = `Difference: ${diffHours > 0 ? "+" : ""}${diffHours.toFixed(1)} hrs`;
+      });
+    }
+
+    function toggleTheme() {
+      const body = document.body;
+      const theme = body.getAttribute("data-theme");
+      body.setAttribute("data-theme", theme === "light" ? "dark" : "light");
+    }
+
+    setInterval(updateTime, 1000);
+    updateTime();
+  </script>
+</body>
+</html>
